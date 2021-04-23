@@ -68,8 +68,51 @@ export default function Episode({ episode }: EpisodeProps) {
 
 // Dinamic SSG - Static Site Generation
 export const getStaticPaths: GetStaticPaths = async () => {
+  /**
+   * quais páginas deverão ser geradas de forma estática:
+   * 1) Nenhuma página deve ser gerada estática no momento da build
+   *  paths: []
+   *  fallback: 'blocking'
+   * 
+   * 2) Se deseja gerar somente de uma página:
+   *  paths: [
+   *     { 
+   *        params: {
+   *          slug: '<slug da página>'
+   *        }   
+   *      }
+   *  ]
+   * 
+   * 3) Se os paths estão vazios, o next não gerará nenhuma página estática,
+   *  no entanto, se o fallback alterar o comportamento muda;
+   * 
+   *  3.1) fallback = false => Se a página for acessada pelo usuário e 
+   *      esta não está nos paths, o next retorna error 404
+   *  
+   *  3.2) fallback = true => Se a página for acessada e esta não está no paths,
+   *      o next fará uma requisição http do lado do client para buscar pela página
+   * 
+   *  3.3) fallback = blocking => roda a requisiçao do next e não do client.
+   *      É o melhor a ser usado 
+   */
+
+  const { data } = await api.get('episodes', {
+    params: {
+      _limit: 2,
+      _sort: 'published_at',
+      _order: 'desc'
+    }
+  });
+
+  const paths = data.map(episode => {
+    return {
+      params: {
+        slug: episode.id
+      }
+    }
+  })
   return {
-    paths: [],
+    paths,
     fallback: 'blocking',
   };
 }

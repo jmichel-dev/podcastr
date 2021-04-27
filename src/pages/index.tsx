@@ -9,7 +9,9 @@ import { api } from '../services/api';
 import { convertDurationToTimeString } from '../utils/converter';
 
 import styles from './home.module.scss';
-import { usePlayer } from '../contexts/PlayerContext'
+import { usePlayer } from '../contexts/PlayerContext';
+import EpisodeItem from '../components/EpisodeItem'
+import CardItem from '../components/CardItem'
 
 type Episodes = {
   id: string;
@@ -40,40 +42,31 @@ export default function Home({
       <Head>
         <title>Home | Podcastr</title>
       </Head>
-      <section className={styles.latestEpisodes}>
+      <section>
         <h2>Ultimos lançamentos</h2>
 
-        <ul>
-          { latestEpisodes.map((episode, index) => {
-            return (
-              <li key={episode.id}>
-                <Image 
-                  width={192} 
-                  height={192} 
-                  src={episode.thumbnail} 
-                  alt={episode.title} 
-                  objectFit="cover"
+        <EpisodeItem 
+          episodes={latestEpisodes}
+          episodeList={episodeList}
+          playList={(episodeList, index) => playList(episodeList, index)}
+        />
+      </section>
+      
+      <section>
+        <h2>Mais ouvidos</h2>
+        <ul className={styles.horizontalList}>
+          {
+            allEpisodes.map(episode => {
+              return (
+                <CardItem 
+                  episode={episode}
+                  key={episode.id}
                 />
-
-                <div className={styles.details}>
-                  <Link href={`/episodes/${episode.id}`}>
-                    <a>{episode.title}</a>
-                  </Link>
-                  <p>{episode.members}</p>
-                  <span>{episode.publishedAt}</span>
-                  <span>{episode.durationAsString}</span>
-                </div>
-
-                <button 
-                  type="button" 
-                  onClick={() => playList(episodeList, index)}
-                >
-                  <img src="/play-green.svg" alt="Tocar episódio"/>
-                </button>
-              </li>
-            );
-          })}
+              );
+            })
+          }
         </ul>
+        
       </section>
 
       <section className={styles.allEpisodes}>
